@@ -7,12 +7,14 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController {
     
     @IBOutlet weak var screenTitle: UILabel!
     @IBOutlet weak var progressBar: UIProgressView!
     
+    var player: AVAudioPlayer?
     
     let eggTime = ["Soft" : 5 * 60, "Medium" : 7 * 60, "Hard" : 12 * 60]
     
@@ -54,8 +56,28 @@ class ViewController: UIViewController {
         } else {
             timer.invalidate()
             screenTitle.text = "Complete"
+            playAlarm()
         }
         let persentProgress = secondsPassed / totalTime
         progressBar.progress = persentProgress
+    }
+    
+
+    func playAlarm() {
+        guard let url = Bundle.main.url(forResource: "alarm_sound", withExtension: "mp3") else { return }
+
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+
+            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+
+            guard let player = player else { return }
+
+            player.play()
+
+        } catch let error {
+            print(error.localizedDescription)
+        }
     }
 }
